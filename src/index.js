@@ -1,5 +1,7 @@
 'use strict';
 
+const RouteParser = require('@funjs/route-parser');
+
 const noop = () => {};
 
 module.exports = Object.freeze(Emitter);

@@ -69,5 +69,8 @@
       "lcov",
       "text-summary"
     ]
+  },
+  "dependencies": {
+    "@funjs/route-parser": "^1.2.1"
   }
 }
