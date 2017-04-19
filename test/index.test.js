@@ -15,4 +15,26 @@ describe('Event Emitter', function () {
       expect(emitter.off).to.be.a('function');
     });
   });
+
+  describe('Listen for a event', function () {
+    it('should return a disposable object', function () {
+      const emitter = Emitter();
+      const listener = emitter.on('users/:action=(insert|update)/:id', () => {});
+
+      expect(listener.dispose).to.be.a('function');
+    });
+
+    it('Emit event must run the listener', function (done) {
+      const emitter = Emitter();
+
+      emitter.on('users/:action=(insert|update)/:id', ({ action, id }, data) => {
+        expect(action).to.equal('insert');
+        expect(id).to.equal('1');
+        expect(data).to.deep.equal({ id: 1, name: 'Joe', age: 33 });
+        done();
+      });
+
+      emitter.emit('users/insert/1', { id: 1, name: 'Joe', age: 33 });
+    });
+  });
 });
