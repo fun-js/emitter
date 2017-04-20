@@ -1,6 +1,6 @@
 {
   "name": "@funjs/emitter",
-  "version": "0.0.0",
+  "version": "0.0.0-development",
   "description": "Simple and fast functional event emitter...",
   "main": "./src/index.js",
   "module": "./dist/index.js",
