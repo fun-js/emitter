@@ -1,14 +1,15 @@
-/* eslint-disable */
-
 'use strict';
 
 const reusify = require('./reusify');
 
 const noop = () => {};
 
+module.exports = parallel;
+
 function parallel(released = noop, results = true) {
   const queue = reusify(ResultsHolder);
   const queueSingleCaller = reusify(SingleCaller);
+  const goArray = results ? goResultsArray : goNoResultsArray;
 
   return Object.freeze((toCall = [], args, done = noop) => {
     const holder = queue.get();
@@ -19,12 +20,12 @@ function parallel(released = noop, results = true) {
       return;
     }
 
-    holder._callback = done;
+    holder.callback = done;
     holder._release = release;
 
-    goResultsArray(toCall, args, holder);
+    goArray(toCall, args, holder);
 
-    if (holder._count === 0) {
+    if (holder.count === 0) {
       holder.release();
     }
   });
@@ -33,12 +34,45 @@ function parallel(released = noop, results = true) {
     queue.release(holder);
     released(holder);
   }
+
+  function singleCallerRelease(holder) {
+    queueSingleCaller.release(holder);
+  }
+
+  function goResultsArray(funcs, args, holder) {
+    const funcsLen = funcs.length;
+    const release = holder.release;
+
+    holder.count = funcsLen;
+    holder.results = new Array(funcsLen);
+
+    funcs.forEach((fn, i) => {
+      const singleCaller = queueSingleCaller.get();
+
+      singleCaller._release = singleCallerRelease;
+      singleCaller.parent = holder;
+      singleCaller.pos = i;
+
+      fn(release, ...args);
+    });
+  }
+
+  function goNoResultsArray(funcs, args, holder) {
+    const funcsLen = funcs.length;
+    const release = holder.release;
+
+    holder.count = funcsLen;
+
+    funcs.forEach(fn => fn(release, ...args));
+  }
 }
 
 
 function ResultsHolder() {
+  let count = 0;
   const holder = {
     release,
+    _release: noop,
     count: -1,
     callback: noop,
     results: undefined,
@@ -46,69 +80,27 @@ function ResultsHolder() {
     next: undefined
   };
 
+  return holder;
+
   function release(err, pos, result) {
-    holder.err = holder.err || err;
+    if (holder.err === undefined) {
+      holder.err = err;
+    }
 
     if (pos >= 0) {
       holder.results[pos] = result;
     }
 
+    count += 1;
 
-  }
-
-  this._count = -1
-  this._callback = noop
-  this._results = null
-  this._err = null
-  this._callThat = null
-  this._release = nop
-  this.next = null
-
-  var that = this
-  var i = 0
-  this.release = function (err, pos, result) {
-    that._err = that._err || err
-    if (pos >= 0) {
-      that._results[pos] = result
+    if (count === holder.count || holder.count === 0) {
+      holder.callback.call(undefined, holder.err, holder.results);
     }
-    var cb = that._callback
-    if (++i === that._count || that._count === 0) {
-      if (that._callThat) {
-        cb.call(that._callThat, that._err, that._results)
-      } else {
-        cb(that._err, that._results)
-      }
-      that._callback = nop
-      that._results = null
-      that._err = null
-      that._callThat = null
-      i = 0
-      that._release(that)
-    }
-  }
-}
 
-
-function goResultsArray (funcs, args, holder) {
-  var sc = null
-  var tc = nop
-
-  holder._count = funcs.length;
-
-  holder._results = new Array(holder._count)
-  for (var i = 0; i < funcs.length; i++) {
-    sc = queueSingleCaller.get()
-    sc._release = singleCallerRelease
-    sc.parent = holder
-    sc.pos = i
-    tc = funcs[i]
-    if (that) {
-      if (tc.length === 1) tc.call(that, sc.release)
-      else tc.call(that, arg, sc.release)
-    } else {
-      if (tc.length === 1) tc(sc.release)
-      else tc(arg, sc.release)
-    }
+    holder.callback = noop;
+    holder.results = undefined;
+    holder.err = undefined;
+    holder._release();
   }
 }
 
