@@ -6,7 +6,7 @@ const noop = () => {};
 
 module.exports = parallel;
 
-function parallel(released = noop, results = true) {
+function parallel(results = true, released = noop) {
   const queue = reusify(ResultsHolder);
   const queueSingleCaller = reusify(SingleCaller);
   const goArray = results ? goResultsArray : goNoResultsArray;
