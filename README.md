@@ -27,7 +27,7 @@ const emitter = Emitter();
 emitter.on('users/:action=(insert|update)/:id', ({ action, id }, data) => {
   console.log(`action: ${action}`);
   console.log(`id: ${id}`);
-  console.log(`data: ${JSON.stringfy(data)}`);
+  console.log(`data: ${JSON.stringify(data)}`);
 });
 
 emitter.emit('users/insert/1', { id: 1, name: 'Joe', age: 33 });
@@ -37,6 +37,45 @@ emitter.emit('users/insert/1', { id: 1, name: 'Joe', age: 33 });
 // data: {"id":1,"name":"Joe","age":33}
 
 ```
+
+## Splat operator return the section position as key, starting by 1:
+
+```javascript
+const Emitter = require('@funjs/emitter');
+const emitter = Emitter();
+
+emitter.on('*/*/:id', (e, data) => {
+  console.log(`event: ${JSON.stringify(e)}`);
+  console.log(`data: ${JSON.stringify(data)}`);
+});
+
+emitter.emit('users/insert/1', { id: 1, name: 'Joe', age: 33 });
+
+// event: {"0":"users","1":"insert","id":"1"}
+// data: {"id":1,"name":"Joe","age":33}
+
+```
+
+## Also works with custom delimiter and named section symbols?
+
+```javascript
+const Emitter = require('@funjs/emitter');
+const emitter = Emitter({ delimiter: '.', namedSection: '$' });
+
+emitter.on('users.$action=(insert|update).id', ({ action, id }, data) => {
+  console.log(`action: ${action}`);
+  console.log(`id: ${id}`);
+  console.log(`data: ${JSON.stringify(data)}`);
+});
+
+emitter.emit('users.insert.1', { id: 1, name: 'Joe', age: 33 });
+
+// action: insert
+// id: 1
+// data: {"id":1,"name":"Joe","age":33}
+
+```
+
 ## What can I use in my events routes?
 
 | Example         | Description          |
@@ -57,8 +96,7 @@ Some examples:
 ## TODO:
 
 - [x] Basic API
-- [ ] Customizables delimeters and operators
-- [ ] Querystrings
+- [x] Customizables delimeters and named segment symbols
 - [ ] Reverse Matching
 - [ ] Implement all features of EventEmitter2
 - [ ] Emplement a "RethinkDBish" query API

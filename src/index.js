@@ -6,7 +6,7 @@ const RouteParser = require('@funjs/route-parser');
 module.exports = Object.freeze(Emitter);
 
 
-function Emitter() {
+function Emitter(options = {}) {
   let listeners = [];
 
   return Object.freeze({
@@ -21,7 +21,7 @@ function Emitter() {
   });
 
   function addListener(event, fn) {
-    const evtRoute = RouteParser(event);
+    const evtRoute = RouteParser(event, options);
 
     listeners.push({ event, evtRoute, fn });
 
