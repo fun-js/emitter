@@ -40,7 +40,7 @@ function Emitter() {
   }
 
   function removeListener(event, fn) {
-    listeners = listeners.filter(ltr => ltr.event !== event || !fn || ltr.fn !== fn);
+    listeners = listeners.filter(ltr => ltr.event !== event || ltr.fn !== fn);
   }
 
   function removeAllListeners() {
