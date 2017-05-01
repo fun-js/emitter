@@ -17,6 +17,7 @@ function Emitter(options = {}) {
     removeListener,
     offAll: removeAllListeners,
     removeAllListeners,
+    eventsNames,
     emit
   });
 
@@ -45,6 +46,10 @@ function Emitter(options = {}) {
 
   function removeAllListeners() {
     listeners = [];
+  }
+
+  function eventsNames(filter = l => l) {
+    return listeners.filter(filter);
   }
 
   function emit(event, ...args) {
