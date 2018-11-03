@@ -2,9 +2,7 @@
 
 const RouteParser = require('@funjs/route-parser');
 
-
 module.exports = Object.freeze(Emitter);
-
 
 function Emitter(options = {}) {
   let listeners = [];
@@ -18,7 +16,8 @@ function Emitter(options = {}) {
     offAll: removeAllListeners,
     removeAllListeners,
     eventsNames,
-    emit
+    emit,
+    listeners: event => listeners.filter(listener => event === listener.event)
   });
 
   function addListener(event, fn) {
