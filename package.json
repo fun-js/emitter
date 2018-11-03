@@ -29,7 +29,8 @@
     "build:umd": "webpack --output-filename index.umd.js",
     "build:umd.min": "cross-env NODE_ENV=production webpack --output-filename index.umd.min.js",
     "setup": "npm install && npm test",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "semantic-release": "semantic-release",
+    "travis-deploy-once": "travis-deploy-once"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
@@ -52,8 +53,9 @@
     "npm-run-all": "^4.0.2",
     "nyc": "^10.3.0",
     "rimraf": "^2.6.1",
-    "semantic-release": "^6.3.2",
-    "webpack": "^2.5.0"
+    "semantic-release": "^15.10.7",
+    "webpack": "^2.5.0",
+    "travis-deploy-once": "^5.0.9"
   },
   "config": {
     "ghooks": {
